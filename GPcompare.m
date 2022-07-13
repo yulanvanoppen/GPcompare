@@ -12,6 +12,8 @@
 % - [E] effect size decomposition such that T = E'E.
 %
 function [p, T, E] = GPcompare(X, Y, varargin)
+    addpath('auxiliary')
+
     %% Parse input
     defaultYLimits = [min(min(X, Y), [], 'all') max(max(X, Y), [], 'all')];
     defaultLim = [];
@@ -79,73 +81,75 @@ function [p, T, E] = GPcompare(X, Y, varargin)
     
     
     %% Plotting
-    if isempty(parser.Results.differenceLimit)          % set y-axis limits for panel 3
-        differenceLimit = max(0.000001, max(max(abs(pDmu_m_fine + 2*pDmu_sd_fine)), ...
-                                            max(abs(pDmu_m_fine - 2*pDmu_sd_fine))));
-    else
-        differenceLimit = parser.Results.differenceLimit;
-    end
-    if isempty(parser.Results.effectLimit)
-        effectLimit = max(0.000001, max(abs(E)));
-    else
-        effectLimit = parser.Results.effectLimit;
-    end
-    
-    
-    f = figure;                                         % initialize 3-panel figure
-    f.Position = [100 100 1000 400];
-    tiledlayout(1, 3)
-    
-    
-    nexttile(1)                                         % first data set + mean posterior
-    plot(tX, X, 'Color', [0.9290, 0.6940, 0.1250, .5]);
-    hold on
-    plot(t_fine, pmu_mX_fine, 'LineWidth', 2, 'Color', [0.9290, 0.6940, 0.1250])
-    plot(t_fine, [pmu_mX_fine + 2*sqrt(diag(pmu_SX_fine)), pmu_mX_fine - 2*sqrt(diag(pmu_SX_fine))], ...
-         '--', 'LineWidth', 2, 'Color', [0.9290, 0.6940, 0.1250])
-    patch([t_fine fliplr(t_fine)], ...
-          [(pmu_mX_fine + 2*sqrt(diag(pmu_SX_fine)))' fliplr((pmu_mX_fine - 2*sqrt(diag(pmu_SX_fine)))')], ...
-          'g', 'FaceColor', [0.9290, 0.6940, 0.1250], 'FaceAlpha', .3, 'EdgeAlpha', 0)      
-    ylim(parser.Results.yLimits)
-    ylabel('measurement')
-    xlabel('cell cycle progression')
-    xticks(0:.2:1)
-    title('X')
-    
-    
-    nexttile(2)                                         % second data set + mean posterior
-    plot(tY, Y, 'Color', [0.4940, 0.1840, 0.5560, .5]);
-    hold on
-    plot(t_fine, pmu_mY_fine, 'LineWidth', 2, 'Color', [0.4940, 0.1840, 0.5560])
-    plot(t_fine, [pmu_mY_fine + 2*sqrt(diag(pmu_SY_fine)), pmu_mY_fine - 2*sqrt(diag(pmu_SY_fine))], ...
-         '--', 'LineWidth', 2, 'Color', [0.4940, 0.1840, 0.5560])
-    patch([t_fine fliplr(t_fine)], ...
-          [(pmu_mY_fine + 2*sqrt(diag(pmu_SY_fine)))' fliplr((pmu_mY_fine - 2*sqrt(diag(pmu_SY_fine)))')], ...
-          'g', 'FaceColor', [0.4940, 0.1840, 0.5560], 'FaceAlpha', .3, 'EdgeAlpha', 0)    
-    ylim(parser.Results.yLimits)
-    ylabel('measurement')
-    xlabel('cell cycle progression')
-    xticks(0:.2:1)
-    title('Y')
-   
-    
-    nexttile(3)                                         % posterior mean difference and effect size decomposition
-    yyaxis left
-    plot(t_fine, pDmu_m_fine, 'LineWidth', 2, 'Color', [0 0.4470 0.7410])
-    hold on
-    plot(t_fine, [pDmu_m_fine + 2*pDmu_sd_fine, pDmu_m_fine - 2*pDmu_sd_fine], ...
-         '--', 'LineWidth', 2, 'Color', [0 0.4470 0.7410])
-    patch([t_fine fliplr(t_fine)], [(pDmu_m_fine + 2*pDmu_sd_fine)' fliplr((pDmu_m_fine - 2*pDmu_sd_fine)')], ...
-          'g', 'FaceColor', [0 0.4470 0.7410], 'FaceAlpha', .3, 'EdgeAlpha', 0)
-    ylim([-1 1] * differenceLimit * 1.05)
-    ylabel('measurement difference')
-    xlabel('cell cycle progression')
-    xticks(0:.2:1)
-    
-    yyaxis right
-    bar(t_coarse, E, 'FaceColor', [0.8500 0.3250 0.0980], 'FaceAlpha', .3, 'EdgeColor', [0.8500 0.3250 0.0980])
-    ylim([-1 1] * effectLimit * 1.05)
-    ylabel('effect size contribution')
+    if parser.Results.plot
+        if isempty(parser.Results.differenceLimit)          % set y-axis limits for panel 3
+            differenceLimit = max(0.000001, max(max(abs(pDmu_m_fine + 2*pDmu_sd_fine)), ...
+                                                max(abs(pDmu_m_fine - 2*pDmu_sd_fine))));
+        else
+            differenceLimit = parser.Results.differenceLimit;
+        end
+        if isempty(parser.Results.effectLimit)
+            effectLimit = max(0.000001, max(abs(E)));
+        else
+            effectLimit = parser.Results.effectLimit;
+        end
 
-    title('X - Y')
+
+        f = figure;                                         % initialize 3-panel figure
+        f.Position = [100 100 1000 400];
+        tiledlayout(1, 3)
+
+
+        nexttile(1)                                         % first data set + mean posterior
+        plot(tX, X, 'Color', [0.9290, 0.6940, 0.1250, .5]);
+        hold on
+        plot(t_fine, pmu_mX_fine, 'LineWidth', 2, 'Color', [0.9290, 0.6940, 0.1250])
+        plot(t_fine, [pmu_mX_fine + 2*sqrt(diag(pmu_SX_fine)), pmu_mX_fine - 2*sqrt(diag(pmu_SX_fine))], ...
+             '--', 'LineWidth', 2, 'Color', [0.9290, 0.6940, 0.1250])
+        patch([t_fine fliplr(t_fine)], ...
+              [(pmu_mX_fine + 2*sqrt(diag(pmu_SX_fine)))' fliplr((pmu_mX_fine - 2*sqrt(diag(pmu_SX_fine)))')], ...
+              'g', 'FaceColor', [0.9290, 0.6940, 0.1250], 'FaceAlpha', .3, 'EdgeAlpha', 0)      
+        ylim(parser.Results.yLimits)
+        ylabel('measurement')
+        xlabel('cell cycle progression')
+        xticks(0:.2:1)
+        title('X')
+
+
+        nexttile(2)                                         % second data set + mean posterior
+        plot(tY, Y, 'Color', [0.4940, 0.1840, 0.5560, .5]);
+        hold on
+        plot(t_fine, pmu_mY_fine, 'LineWidth', 2, 'Color', [0.4940, 0.1840, 0.5560])
+        plot(t_fine, [pmu_mY_fine + 2*sqrt(diag(pmu_SY_fine)), pmu_mY_fine - 2*sqrt(diag(pmu_SY_fine))], ...
+             '--', 'LineWidth', 2, 'Color', [0.4940, 0.1840, 0.5560])
+        patch([t_fine fliplr(t_fine)], ...
+              [(pmu_mY_fine + 2*sqrt(diag(pmu_SY_fine)))' fliplr((pmu_mY_fine - 2*sqrt(diag(pmu_SY_fine)))')], ...
+              'g', 'FaceColor', [0.4940, 0.1840, 0.5560], 'FaceAlpha', .3, 'EdgeAlpha', 0)    
+        ylim(parser.Results.yLimits)
+        ylabel('measurement')
+        xlabel('cell cycle progression')
+        xticks(0:.2:1)
+        title('Y')
+
+
+        nexttile(3)                                         % posterior mean difference and effect size decomposition
+        yyaxis left
+        plot(t_fine, pDmu_m_fine, 'LineWidth', 2, 'Color', [0 0.4470 0.7410])
+        hold on
+        plot(t_fine, [pDmu_m_fine + 2*pDmu_sd_fine, pDmu_m_fine - 2*pDmu_sd_fine], ...
+             '--', 'LineWidth', 2, 'Color', [0 0.4470 0.7410])
+        patch([t_fine fliplr(t_fine)], [(pDmu_m_fine + 2*pDmu_sd_fine)' fliplr((pDmu_m_fine - 2*pDmu_sd_fine)')], ...
+              'g', 'FaceColor', [0 0.4470 0.7410], 'FaceAlpha', .3, 'EdgeAlpha', 0)
+        ylim([-1 1] * differenceLimit * 1.05)
+        ylabel('measurement difference')
+        xlabel('cell cycle progression')
+        xticks(0:.2:1)
+
+        yyaxis right
+        bar(t_coarse, E, 'FaceColor', [0.8500 0.3250 0.0980], 'FaceAlpha', .3, 'EdgeColor', [0.8500 0.3250 0.0980])
+        ylim([-1 1] * effectLimit * 1.05)
+        ylabel('effect size contribution')
+
+        title('X - Y')
+    end
 end
