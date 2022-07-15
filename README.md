@@ -1,6 +1,8 @@
 # GPcompare
 _Compare groups of time series using Guassian processes (GPs) through posterior mean difference distribution evaluation._
 
+This software package includes the functions used to produce the computational results of [1]. The data is available on [Mendeley Data](https://data.mendeley.com/v1/datasets/hvxztrr2m9/draft#folder-68e6078c-2cb8-4b22-af17-9d31a2488dfd "https://data.mendeley.com").
+
 &nbsp;
 
 
