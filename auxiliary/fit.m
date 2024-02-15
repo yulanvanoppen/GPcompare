@@ -5,7 +5,7 @@ function [par, opt, H] = fit(t, y, prior, n_meanpar, n_Sigmapar)
     H = zeros(n_meanpar+n_covpar);
     
     options = optimoptions('fmincon', 'Display', 'off', 'OptimalityTolerance', 1e-4);
-    for n = 1:5
+    for n = 1:25
         try                                             % maximize likelihood a posteriori
             [MLE_par, MLE, ~, ~, ...
              ~, ~, hess] = fmincon(@(par) -loglik(par(1:n_meanpar), par(n_meanpar+1:end), t, y, prior), ...
